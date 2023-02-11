@@ -1,0 +1,15 @@
+.todo-input {
+    color: #fff;
+    height: 44px;
+    width: 348px;
+    margin-top: 12px;
+    outline: none;
+    border: 1px solid #8D9A92;
+    background: #8D9A92;
+    border-radius: 7px;
+    box-shadow: 2px 3px 5px #c1c1c1;
+    padding: 0px 8px;
+}
+::placeholder {
+    color: #fff;
+}
