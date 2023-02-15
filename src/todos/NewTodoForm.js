@@ -1,22 +1,14 @@
-import React, {useEffect} from "react";
+import React from "react";
 import "./new-todo.css";
-
-const NewTodoForm =({setInputVal, textInput, buttonClicked}) => {
-
-    useEffect(()=> {
-        if(buttonClicked){
-            setInputVal("");
-        }
-    },[buttonClicked])
-
-    function readInputVal(inputVal){
-        setInputVal(inputVal);
+export default class NewTodoForm extends React.Component {
+    constructor(props) {
+        super(props);
+    }    
+    render() {
+        return (
+            <div className="me-3">
+                <input className="todo-input"  type="text" placeholder="Add your Todo" onChange={(e)=>this.props.todoTitle(e.target.value)} />
+            </div>
+        )
     }
-    return (
-        <div className="me-3">
-            <input ref={textInput} className="todo-input" type="text" placeholder="Add your Todo" onChange={(e)=>readInputVal(e.target.value)} />
-        </div>
-    )
 }
-
-export default NewTodoForm;

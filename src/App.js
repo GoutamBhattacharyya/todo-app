@@ -1,7 +1,7 @@
 import React from 'react';
 import './app.css';
 import {hot} from 'react-hot-loader';
-import { ToDo } from './todos/ToDo';
+import ToDo from './todos/ToDo';
 
 const App=()=> {
     return(

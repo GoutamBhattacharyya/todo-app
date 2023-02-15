@@ -1,14 +1,18 @@
 import React from "react";
+import "./time-counter.css";
 
-const TimeCounter =({timeLabel,selectedTime,timeAdd,timeLess}) => {
-    return (
-        <div className="time-update-container">
-            <button onClick={timeAdd} className="btn-time -plus"></button>
-            <label>{timeLabel}</label>
-            <input value={selectedTime<10? "0"+selectedTime: selectedTime} readOnly className="input-time" type="text" />
-            <button onClick={timeLess} className="btn-time -minus"></button>
-        </div>
-    )
+export default class TimeCounter extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+    render () {
+        return (
+            <div className="time-update-container">
+                <button onClick={this.props.timeAdd} className="btn-time -plus"></button>
+                <label>demo</label>
+                <input readOnly value={this.props.selectedTime} className="input-time" type="text" />
+                <button onClick={this.props.timeLess} className="btn-time -minus"></button>
+            </div>
+        )
+    }
 }
-
-export default TimeCounter;
