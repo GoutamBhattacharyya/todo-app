@@ -9,8 +9,8 @@ export default class TimeCounter extends React.Component {
         return (
             <div className="time-update-container">
                 <button onClick={this.props.timeAdd} className="btn-time -plus"></button>
-                <label>demo</label>
-                <input readOnly value={this.props.selectedTime} className="input-time" type="text" />
+                <label>{this.props.fieldLebel}</label>
+                <input ref={this.props.todoTimeRef} readOnly value={this.props.selectedTime} className="input-time" type="text" />
                 <button onClick={this.props.timeLess} className="btn-time -minus"></button>
             </div>
         )

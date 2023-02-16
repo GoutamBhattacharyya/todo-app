@@ -4,6 +4,7 @@ import TimeCounter from "./TimeCounter";
 import TodoAddButton from "./TodoAddButton";
 import TodoList from "./TodoList";
 import EditModal from "./EditModal";
+import "./edit-modal.css"
 
 export default class ToDo extends React.Component {
     constructor(props) {
@@ -19,7 +20,10 @@ export default class ToDo extends React.Component {
             showList : false,
             showModal: false,
             checkFlag: false,
+            showErrorMsg: false,
         }
+        this.todoTitleRef = React.createRef();
+        this.updateTitleRef = React.createRef();
         this.readInputVal = this.readInputVal.bind(this);
         this.hourAddition = this.hourAddition.bind(this);
         this.hourSubtraction = this.hourSubtraction.bind(this);
@@ -27,43 +31,60 @@ export default class ToDo extends React.Component {
         this.updateTodo = this.updateTodo.bind(this);
         this.deleteItem = this.deleteItem.bind(this);
         this.editItem = this.editItem.bind(this);
+        this.modalHide = this.modalHide.bind(this);
     }
 
     addTodo = (e) => {
         e.preventDefault();
-        this.state.showList = true;
-        const todoTitle= this.state.todoTitle;
-        const todoHour=this.state.todoHour;
-        const todoMinut= this.state.todoMinute;
-        const obj ={
-            "todoTitle": todoTitle,
-            "todoHour": todoHour,
-            "todoMinut": todoMinut,
+        if(this.state.todoTitle != "") {
+            this.state.showList = true;
+            const todoTitle= this.state.todoTitle;
+            const todoHour=this.state.todoHour;
+            const todoMinut= this.state.todoMinute;
+            const obj ={
+                "todoTitle": todoTitle,
+                "todoHour": todoHour,
+                "todoMinut": todoMinut,
+            }
+            this.setState({todoListObj:[...this.state.todoListObj,obj]})
+            this.setState({todoTitle:""});
+            this.setState({todoHour:0});
+            this.setState({todoMinute:0});
+            this.todoTitleRef.current.value="";
+        }else {
+            this.setState({showErrorMsg:true})
         }
-        this.setState({todoListObj:[...this.state.todoListObj,obj]})
     }
 
 
     updateTodo = (e) => {
         e.preventDefault();
-        this.setState({checkFlag:false});
-        const obj ={
-            "todoTitle": this.state.todoTitle,
-            "todoHour": this.state.updatedHour,
-            "todoMinut": this.state.updatedMinute,
+        if(this.updateTitleRef.current.value !=0) {
+            this.setState({checkFlag:false});
+            const obj ={
+                "todoTitle": this.updateTitleRef.current.value,
+                "todoHour": this.state.updatedHour,
+                "todoMinut": this.state.updatedMinute,
+            }
+            this.setState({
+                todoListObj: [
+                    ...this.state.todoListObj.slice(0, this.state.editNumber),
+                    obj,
+                    ...this.state.todoListObj.slice(this.state.editNumber+1),
+                ]
+            })
+            this.setState({showModal:false});
+            this.setState({todoTitle:""});
+            this.updateTitleRef.current.value ===""? this.setState({showErrorMsg:true}):this.setState({showErrorMsg:false})
+        }else {
+            this.setState({showErrorMsg:true})
         }
-        this.setState({
-            todoListObj: [
-                ...this.state.todoListObj.slice(0, this.state.editNumber),
-                obj,
-                ...this.state.todoListObj.slice(this.state.editNumber+1),
-            ]
-        })
     }
 
 
     readInputVal = (targetVal) => {
         this.setState({todoTitle:targetVal})
+        this.setState({showErrorMsg:false})
     }
 
 
@@ -100,13 +121,30 @@ export default class ToDo extends React.Component {
         localStorage.setItem('todoListObj', JSON.stringify(this.state.todoListObj));
         const modJSON = JSON.parse(localStorage.getItem('todoListObj'));
         this.setState({todoListObj:modJSON});
+        this.setState({showErrorMsg:false})
     }
 
 
     editItem = (id) => {
+        let clickedHourVal=0;
+        let clickedMinVal=0;
         this.setState({editNumber:id});
         this.setState({showModal:true});
         this.setState({checkFlag:true});
+        this.state.todoListObj.map((obj,index) => {
+            if(index === id){
+                clickedHourVal = obj.todoHour
+                clickedMinVal = obj.todoMinut
+            }
+        })
+        this.setState({updatedHour: clickedHourVal})
+        this.setState({updatedMinute: clickedMinVal})
+        this.setState({showErrorMsg:false})
+    }
+
+    modalHide = () => {
+        this.setState({showModal:false});
+        this.setState({checkFlag:false});
     }
 
 
@@ -127,16 +165,21 @@ export default class ToDo extends React.Component {
             <>
                 <div className="d-flex justify-content-center">
                     <NewTodoForm
-                        todoTitle = {this.readInputVal}
+                        todoTitle       = {this.readInputVal}
+                        showErrorMsg    = {this.state.showErrorMsg}
+                        todoTitleRef    = {this.todoTitleRef}
+                        checkFlag       = {this.state.checkFlag}
                     />
                     <TimeCounter
-                        selectedTime    ={this.state.todoHour}
+                        selectedTime    = {this.state.todoHour}
+                        fieldLebel      = {"Hour"}
                         timeAdd         = {this.hourAddition}
                         timeLess        = {this.hourSubtraction}
                     />
                     <span className="time-separator-line">/</span>
                     <TimeCounter
                         selectedTime    = {this.state.todoMinute}
+                        fieldLebel      = {"Minute"}
                         timeAdd         = {this.minuteAddition}
                         timeLess        = {this.minuteSubtarction}
                     />
@@ -152,21 +195,30 @@ export default class ToDo extends React.Component {
                         showList        = {this.state.showList}
                     />
                 </div>
-                <div className="d-flex justify-content-center">
-                    <EditModal
-                        todoTitle       = {this.readInputVal}
-                        todoListObj     = {this.state.todoListObj}
-                        editNumber      = {this.state.editNumber}
-                        showModal       = {this.state.showModal}
-                        selectedHour    = {this.state.updatedHour}
-                        selectedMin     = {this.state.updatedMinute}
-                        hourAdd         = {this.hourAddition}
-                        hourLess        = {this.hourSubtraction}
-                        minAdd          = {this.minuteAddition}
-                        minLess         = {this.minuteSubtarction}
-                        addTodo         = {this.updateTodo}
-                    />
-                </div>
+                {
+                    this.state.showModal &&
+                        <div className="edit-modal">
+                            <EditModal
+                                todoTitle       = {this.readInputVal}
+                                todoListObj     = {this.state.todoListObj}
+                                editNumber      = {this.state.editNumber}
+                                showModal       = {this.state.showModal}
+                                selectedHour    = {this.state.updatedHour}
+                                selectedMin     = {this.state.updatedMinute}
+                                hourAdd         = {this.hourAddition}
+                                hourLess        = {this.hourSubtraction}
+                                minAdd          = {this.minuteAddition}
+                                minLess         = {this.minuteSubtarction}
+                                addTodo         = {this.updateTodo}
+                                hourLebel       = {"Hour"}
+                                minuteLebel     = {"Minute"}
+                                updateTitleRef  = {this.updateTitleRef}
+                                showErrorMsg    = {this.state.showErrorMsg}
+                                checkFlag       = {this.state.checkFlag}
+                                modalHide       = {this.modalHide}
+                            />
+                        </div>
+                }
             </>
         )
     }

@@ -7,7 +7,7 @@ const App=()=> {
     return(
         <div className="container App h-100">
             <div className="row justify-content-center align-items-center h-100">
-                <div className='col-6'><ToDo /></div>
+                <div className='col-6 position-relative'><ToDo /></div>
             </div>
         </div>
     )

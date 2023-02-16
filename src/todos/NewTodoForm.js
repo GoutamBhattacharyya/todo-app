@@ -7,7 +7,16 @@ export default class NewTodoForm extends React.Component {
     render() {
         return (
             <div className="me-3">
-                <input className="todo-input"  type="text" placeholder="Add your Todo" onChange={(e)=>this.props.todoTitle(e.target.value)} />
+                {
+                    this.props.showErrorMsg && !this.props.checkFlag && 
+                    <span className="error-msg">Pleas add Todo title</span>
+                }
+                <input
+                    className="todo-input"
+                    ref={this.props.todoTitleRef}
+                    type="text"
+                    placeholder="Add your Todo"
+                    onChange={(e)=>this.props.todoTitle(e.target.value)} />
             </div>
         )
     }
